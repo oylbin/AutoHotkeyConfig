@@ -76,6 +76,10 @@ if WinActive("ahk_exe sublime_text.exe")
 {
     Send ^w
 }
+else if WinActive("ahk_exe idea64.exe")
+{
+   Send ^{f4}
+}
 else
 {
     Send !{f4}
