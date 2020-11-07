@@ -29,7 +29,7 @@ CapsLock & b:: Send, {Left}
 
 ; kill to line end as in Emacs
 CapsLock & k:: 
-if WinActive("ahk_exe WindowsTerminal.exe")
+if WinActive("ahk_exe WindowsTerminal.exe") or WinActive("ahk_exe mintty.exe")
 {
 Send, ^k
 }
