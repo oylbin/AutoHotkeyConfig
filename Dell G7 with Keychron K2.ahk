@@ -42,16 +42,39 @@ return
 ; delete character at the right of the cursor 
 CapsLock & d:: Send, {delete}
 
-CapsLock & Space:: Send, {Ctrl down}{Space}{ctrl up}
+; enable these settings if you want use capslock+{} to simulate copy, cut, paste, save
+;CapsLock & c:: Send, ^c
+;CapsLock & v:: Send, ^v
+;CapsLock & s:: Send, ^s
+;CapsLock & x:: Send, ^x
+
+
+
+; 2020-12-18, I give up wox and use system default search function.
+; CapsLock & Space:: Send, {Ctrl down}{Space}{ctrl up}
+CapsLock & Space:: Send, #q
+
 
 ; same key position as on macOS: copy, paste, cut, undo, select all, save, search
 !c::Send, ^c
-!v::Send, ^v
+;!v::Send, ^v
 !x::Send, ^x
 !z::Send, ^z
 !a::Send, ^a
 !s::Send, ^s
 !f::Send, ^f
+
+!v::
+if  WinActive("ahk_exe mintty.exe")
+{
+    ;MsgBox "close tab"
+    Send +{insert}
+}
+else
+{
+    Send ^v
+}
+return
 
 ; clipboard history
 ; I use alfred on macOS, and clipboard history shortcut is option + command + c.
@@ -144,12 +167,54 @@ RunOrActivate(matchExpression, fullPath)
 }
 
 
-; win + G will start "Xbox Game Bar" by default. I have to turn it off in "Settings - Game - Xbox Game Bar".
+; win + G will start "Xbox Game Bar" by default.
+; I have to turn it off in "Settings - Game - Xbox Game Bar".
 #g::RunOrActivate("ahk_exe chrome.exe","C:\Program Files\Google\Chrome\Application\chrome.exe")
 
 #e::RunOrActivate("ahk_exe TOTALCMD64.EXE", "C:\totalcmd\TOTALCMD64.EXE")
 
 ;#s::RunOrActivate("ahk_exe sublime_text.exe","C:\Program Files\Sublime Text 3\sublime_text.exe")
-#s::RunOrActivate("ahk_exe Code.exe", "C:\Users\oylb\AppData\Local\Programs\Microsoft VS Code\Code.exe")
+#s::
+if FileExist("C:\Users\oylb\AppData\Local\Programs\Microsoft VS Code\Code.exe") {
+    RunOrActivate("ahk_exe Code.exe", "C:\Users\oylb\AppData\Local\Programs\Microsoft VS Code\Code.exe")
+}else if FileExist("C:\Users\oylbin\AppData\Local\Programs\Microsoft VS Code\Code.exe") {
+    RunOrActivate("ahk_exe Code.exe", "C:\Users\oylbin\AppData\Local\Programs\Microsoft VS Code\Code.exe")
+}else if FileExist("C:\Program Files\Microsoft VS Code\Code.exe") {
+    RunOrActivate("ahk_exe Code.exe", "C:\Program Files\Microsoft VS Code\Code.exe")
+} else {
+    MsgBox, "Please install vscode first."
+}
+return
 
-#w::RunOrActivate("ahk_exe WorkFlowy.exe","C:\Users\oylb\AppData\Local\Programs\WorkFlowy\WorkFlowy.exe")
+
+
+
+#w::
+exePath = C:\Users\%A_UserName%\AppData\Local\Programs\WorkFlowy\WorkFlowy.exe
+RunOrActivate("ahk_exe WorkFlowy.exe", exePath)
+return
+
+
+; 在chrome浏览器里把 alt + 鼠标左键 映射 为 ctrl + 鼠标左键
+!LButton::
+if WinActive("ahk_exe chrome.exe")
+    or WinActive("ahk_exe msedge.exe")
+{
+    ;MsgBox "link in browser"
+    Send {Ctrl down}{Click Left}{Ctrl up}
+}
+else
+{
+	Send {Alt down}{Click Left}{Alt up}
+	;MsgBox "alt + left click"
+}
+return
+
+; 在 workflowy 里把 alt+enter 映射为 ctrl + enter
+!Enter::
+if WinActive("ahk_exe WorkFlowy.exe"){
+    send {ctrl down}{enter}{ctrl up}
+}else{
+    send {alt down}{enter}{alt up}
+}
+return
