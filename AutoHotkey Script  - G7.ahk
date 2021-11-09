@@ -1,4 +1,4 @@
-﻿; 我同时使用MacOS和Windows工作，快捷键设置的主要目的是让两个系统的快捷键在键盘上的位置保持一致。
+; 我同时使用MacOS和Windows工作，快捷键设置的主要目的是让两个系统的快捷键在键盘上的位置保持一致。
 ; 这样切换系统敲击键盘时，我不需要调整我的肌肉记忆。
 
 ; 	!	alt key（command key on macOS）
@@ -20,11 +20,18 @@ SetCapsLockState AlwaysOff
 
 ; 检查是否是命令行终端程序
 isTerminalWindow() {
-    return WinActive("ahk_exe WindowsTerminal.exe") or WinActive("ahk_exe mintty.exe")
+    return WinActive("ahk_exe WindowsTerminal.exe") 
+        or WinActive("ahk_exe mintty.exe")
 }
 isEmacsLikeIDE(){
     ;return WinActive("ahk_exe pycharm64.exe")
     return 0
+}
+isJetbrainIDE(){
+    return WinActive("ahk_exe pycharm64.exe") 
+        or WinActive("ahk_exe idea64.exe") 
+        or WinActive("ahk_exe clion64.exe")
+        or WinActive("ahk_exe goland64.exe")
 }
 
 ; 如果进程存在，那么切换到这个进程；如果进程不存在，那么启动一个新进程。
@@ -143,19 +150,24 @@ CapsLock & k:: Send, {Shift down}{end}{Shift up}{BackSpace}
 
 #g::
 if FileExist("C:\Program Files\Google\Chrome\Application\chrome.exe") {
-    RunOrActivate("ahk_exe chrome.exe","C:\Program Files\Google\Chrome\Application\chrome.exe")
+    RunOrActivate("ahk_exe chrome.exe"
+        ,"C:\Program Files\Google\Chrome\Application\chrome.exe")
 } else if FileExist(Format("C:\Users\{1}\AppData\Local\Google\Chrome\Application\chrome.exe",A_UserName)) {
-    RunOrActivate("ahk_exe chrome.exe",Format("C:\Users\{1}\AppData\Local\Google\Chrome\Application\chrome.exe",A_UserName))
+    RunOrActivate("ahk_exe chrome.exe"
+        ,Format("C:\Users\{1}\AppData\Local\Google\Chrome\Application\chrome.exe",A_UserName))
 } else {
-    RunOrActivate("ahk_exe msedge.exe","C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
+    RunOrActivate("ahk_exe msedge.exe"
+        ,"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
 }
 return
 
 
 ;#e::RunOrActivate("ahk_exe TOTALCMD64.EXE", "C:\totalcmd\TOTALCMD64.EXE")
-#e::RunOrActivate("ahk_exe fman.exe", Format("C:\Users\{1}\AppData\Local\fman\fman.exe", A_UserName))
+#e::RunOrActivate("ahk_exe fman.exe"
+        , Format("C:\Users\{1}\AppData\Local\fman\fman.exe", A_UserName))
 
-#s::RunOrActivate("ahk_exe sublime_text.exe","C:\Program Files\Sublime Text\sublime_text.exe")
+#s::RunOrActivate("ahk_exe sublime_text.exe"
+        , "C:\Program Files\Sublime Text\sublime_text.exe")
 
 #x::
 RunOrActivate("ahk_exe XMind.exe", "C:\Program Files (x86)\XMind\XMind.exe")
@@ -259,6 +271,33 @@ return
 
 #if
 
+; Jetbrain 系列IDE快捷键设置
+; IDE使用默认的名称为“Windows”的Keymap配置文件
+; 用AutoHotKey做映射的好处是：1. 可以自动同步；2. 不用每个IDE都配置一遍。
+#if isJetbrainIDE()
+
+; 关闭文件标签
+!w::Send ^{f4}
+
+; Navigate - backward
+![::Send ^!{Left}
+
+; Navigate - forward
+!]::Send ^!{Right}
+
+; Goto File
++!o::Send ^+N
+
+; Goto Declaration or Usages
+!LButton::Send ^{LButton}
+
+; format file
+#!l::Send ^!l
+
+; run
+CapsLock & r:: Send, +{f10}
+
+#if
 
 
 ; I use command +w to close tabs on macOS
@@ -270,10 +309,6 @@ if WinActive("ahk_exe sublime_text.exe")
     or WinActive("ahk_exe Code.exe")
 {
     Send ^w
-}
-else if WinActive("ahk_exe idea64.exe") or WinActive("ahk_exe clion64.exe") or WinActive("ahk_exe pycharm64.exe")
-{
-   Send ^{f4}
 }
 else
 {
